@@ -140,11 +140,44 @@ public interface XpDropsConfig extends Config {
             keyName = "attachToPlayer",
             name = "Attach to player",
             description = "Attaches the XP drop location to the player",
-            position = 14,
+            position = 7,
             section = xp_drop_settings
     )
     default boolean attachToPlayer() {
         return false;
+    }
+
+    @ConfigItem(
+            keyName = "fontName",
+            name = "Font Name",
+            description = "Name of the font for XP Drops.",
+            position = 8,
+            section = font_settings
+    )
+    default String fontName() {
+        return "";
+    }
+
+    @ConfigItem(
+            keyName = "fontSize",
+            name = "Font Size",
+            description = "Size for your font",
+            position = 9,
+            section = font_settings
+    )
+    default int fontSize() {
+        return 12;
+    }
+
+    @ConfigItem(
+            keyName = "fontStyle",
+            name = "Font Style",
+            description = "Style of font for XP Drops",
+            position = 10,
+            section = font_settings
+    )
+    default FontStyle fontStyle() {
+        return FontStyle.DEFAULT;
     }
 
 }
