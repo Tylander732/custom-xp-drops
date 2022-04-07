@@ -19,11 +19,47 @@ public class XpDropDamageCalculator {
     private static final String NPC_JSON_FILE = "npc.min.json";
     private static final HashMap<Integer, Double> XP_BONUS_MAPPING = new HashMap<>();
 
-    //TODO: What is this GSON file for?
     private final Gson GSON;
 
     @Inject
     protected XpDropDamageCalculator(Gson gson) {
         this.GSON = gson;
+    }
+
+    public void populateMap() {
+        XP_BONUS_MAPPING.clear();
+        XP_BONUS_MAPPING.putAll(getNpcsWithXpBonus());
+    }
+
+    //Read through the JSON file and gather any Npcs that have bonus xp
+    private HashMap<Integer, Double> getNpcsWithXpBonus() {
+        HashMap<Integer, Double> map = new HashMap<>();
+        try {
+            try (InputStream resource = XpDropDamageCalculator.class.getResourceAsStream((NPC_JSON_FILE))) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(resource, StandardCharsets.UTF_8));
+                Object jsonResult = GSON.fromJson(reader, Map.class);
+                try {
+                    //Json file format is id [String, double]
+                    //Cast JsonResult to a Map
+                    Map<String, LinkedTreeMap<String, Double>> stringLinkedTreeMapMap = (Map<String, LinkedTreeMap<String, Double>>) jsonResult;
+                    for(String id : stringLinkedTreeMapMap.keySet()) {
+                        LinkedTreeMap<String, Double> result = stringLinkedTreeMapMap.get(id);
+
+                        //for each key in the keyset, gather the bonus xp for each npc
+                        //and get the percentage of bonus xp
+                        for(String key : result.keySet()) {
+                            Double xpBonus = result.get(key);
+                            xpBonus = (xpBonus + 100) / 100.0d;
+                            map.put(Integer.parseInt(id), xpBonus);
+                        }
+                    }
+                } catch (ClassCastException castException) {
+                    log.warn("Invalid Json.");
+                }
+            }
+        }  catch (IOException e) {
+            log.warn("Couldn't open JSON file");
+        }
+        return map;
     }
 }
