@@ -31,6 +31,31 @@ public class XpDropDamageCalculator {
         XP_BONUS_MAPPING.putAll(getNpcsWithXpBonus());
     }
 
+
+    //TODO: Spend more time figuring out what's going on in this function
+    //Why are calculations happening this way?
+    public int calculateHitOnNpc(int id, int hpXpDiff, boolean isPlayer, double configModifier) {
+
+        //What determines the configModifier?
+        if(Math.abs(configModifier) < 1e-6) {
+            configModifier = 1e-6;
+        }
+
+        double modifier = 1.0;
+
+        if(isPlayer) {
+            modifier = Math.min(1.125d, 1 + Math.floor(id / 20.0d) / 40.0d);
+        } else if (XP_BONUS_MAPPING.containsKey(id)) {
+            modifier = XP_BONUS_MAPPING.get(id);
+        }
+
+        if(modifier < 1e-6) {
+            return 0;
+        }
+
+        return (int) Math.round((hpXpDiff * (3.0d / 4.0d)) / modifier / configModifier);
+    }
+
     //Read through the JSON file and gather any Npcs that have bonus xp
     private HashMap<Integer, Double> getNpcsWithXpBonus() {
         HashMap<Integer, Double> map = new HashMap<>();
