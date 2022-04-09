@@ -66,10 +66,11 @@ public class XpDropOverlay extends Overlay {
     //Loop through all the skills in the game to get their icons to be used
     protected void initIcons() {
         for(int i = 0; i < STAT_ICONS.length; i++) {
-
+            STAT_ICONS[i] = plugin.getSkillIcon(Skill.values()[i]);
         }
 
     }
+
 
 
     @Override

@@ -101,7 +101,7 @@ public class CustomXpDropsPlugin extends Plugin
         queue.clear();
         overlayManager.add(xpDropOverlay);
 
-        //TODO: xpDropDamageCalculator.populateMap();
+        xpDropDamageCalculator.populateMap();
     }
 
     @Override
@@ -132,5 +132,22 @@ public class CustomXpDropsPlugin extends Plugin
         } else {
             lastOpponentId = -1;
         }
+    }
+
+    protected BufferedImage getSkillIcon(Skill skill) {
+        int index = skill.ordinal();
+        int icon = SKILL_ICON_ORDINAL_ICONS[index];
+        return getIcon(icon, 0);
+    }
+
+    protected BufferedImage getIcon(int icon, int spriteIndex) {
+        if(client == null) {
+            return null;
+        }
+        SpritePixels[] pixels = client.getSprites(client.getIndexSprites(), icon, 0);
+        if(pixels != null && pixels.length >= spriteIndex + 1 && pixels[spriteIndex] != null) {
+            return pixels[spriteIndex].toBufferedImage();
+        }
+        return null;
     }
 }
