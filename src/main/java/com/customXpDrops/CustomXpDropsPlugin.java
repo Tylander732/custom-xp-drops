@@ -159,7 +159,17 @@ public class CustomXpDropsPlugin extends Plugin
 
     @Subscribe
     protected void onFakeXpDrop(FakeXpDrop event) {
+        int currentXp = event.getXp();
+        if(event.getXp() >= 20000000) {
+            return;
+        }
+    }
 
+    @Subscribe
+    protected void onStatChanged(StatChanged event) {
+        int currentXp = event.getXp();
+        int previousXp = previous_exp[event.getSkill().ordinal()];
+        //TODO: Do I need the HITPOINTS related stuff?
     }
 
     protected BufferedImage getSkillIcon(Skill skill) {
@@ -177,5 +187,38 @@ public class CustomXpDropsPlugin extends Plugin
             return pixels[spriteIndex].toBufferedImage();
         }
         return null;
+    }
+
+    private XpDropStyle getActivePrayerType() {
+        for (XpPrayer prayer : XpPrayer.values()) {
+            if(client.isPrayerActive(prayer.getPrayer())) {
+                return prayer.getType();
+            }
+        }
+        return null;
+    }
+
+    protected XpDropStyle matchPrayerStyle(Skill skill) {
+        XpDropStyle style = XpDropStyle.DEFAULT;
+        XpDropStyle active = getActivePrayerType();
+        switch (skill) {
+            case MAGIC:
+                if(active == XpDropStyle.MAGE) {
+                    style = active;
+                } break;
+            case RANGED:
+                if(active == XpDropStyle.RANGE) {
+                    if(active == XpDropStyle.RANGE) {
+                        style = active;
+                    }
+                } break;
+            case ATTACK:
+            case STRENGTH:
+            case DEFENCE:
+                if(active == XpDropStyle.MELEE) {
+                    style = active;
+                } break;
+        }
+        return style;
     }
 }
