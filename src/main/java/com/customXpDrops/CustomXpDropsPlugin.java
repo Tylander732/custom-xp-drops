@@ -134,6 +134,34 @@ public class CustomXpDropsPlugin extends Plugin
         }
     }
 
+    @Subscribe
+    public void onScriptPreFired(ScriptPreFired scriptPreFired) {
+        if(scriptPreFired.getScriptId() == XPDROPS_SETDROPSIZE) {
+            final int[] intStack = client.getIntStack();
+            final int intStackSize = client.getIntStackSize();
+            final int widgetId = intStack[intStackSize - 4];
+
+            final Widget xpDrop = client.getWidget(widgetId);
+            if(xpDrop != null) {
+                xpDrop.setHidden(true);
+            }
+        }
+    }
+
+    //When logging in or when hopping worlds, reset the previous_exp array to 0,
+    //so it can be refilled once the user has logged in
+    @Subscribe
+    protected void onGameStateChanged(GameStateChanged gameStateChanged) {
+        if(gameStateChanged.getGameState() == GameState.LOGIN_SCREEN || gameStateChanged.getGameState() == GameState.HOPPING) {
+            Arrays.fill(previous_exp, 0);
+        }
+    }
+
+    @Subscribe
+    protected void onFakeXpDrop(FakeXpDrop event) {
+
+    }
+
     protected BufferedImage getSkillIcon(Skill skill) {
         int index = skill.ordinal();
         int icon = SKILL_ICON_ORDINAL_ICONS[index];
