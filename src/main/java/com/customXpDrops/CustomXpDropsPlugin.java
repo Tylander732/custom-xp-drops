@@ -109,6 +109,7 @@ public class CustomXpDropsPlugin extends Plugin
         overlayManager.remove(xpDropOverlay);
     }
 
+    //Set the opponent variables to either an NPC or the player the user is fighting against
     @Subscribe
     public void onInteractingChanged(InteractingChanged event) {
         if(event.getSource() != client.getLocalPlayer()){
@@ -134,6 +135,7 @@ public class CustomXpDropsPlugin extends Plugin
         }
     }
 
+    //TODO: Write documentation for this function
     @Subscribe
     public void onScriptPreFired(ScriptPreFired scriptPreFired) {
         if(scriptPreFired.getScriptId() == XPDROPS_SETDROPSIZE) {
@@ -160,9 +162,13 @@ public class CustomXpDropsPlugin extends Plugin
     @Subscribe
     protected void onFakeXpDrop(FakeXpDrop event) {
         int currentXp = event.getXp();
-        if(event.getXp() >= 20000000) {
+
+        //if the xp for a skill is at 200m, no xp drops
+        if(event.getXp() >= 200000000) {
             return;
         }
+        XpDrop xpDrop = new XpDrop(event.getSkill(), currentXp, matchPrayerStyle(event.getSkill()), true, lastOpponent);
+        queue.add(xpDrop);
     }
 
     @Subscribe
@@ -170,6 +176,9 @@ public class CustomXpDropsPlugin extends Plugin
         int currentXp = event.getXp();
         int previousXp = previous_exp[event.getSkill().ordinal()];
         //TODO: Do I need the HITPOINTS related stuff?
+
+        XpDrop xpDrop = new XpDrop(event.getSkill(), currentXp - previousXp, matchPrayerStyle(event.getSkill()), false, lastOpponent);
+        queue.add(xpDrop);
     }
 
     protected BufferedImage getSkillIcon(Skill skill) {
@@ -208,9 +217,7 @@ public class CustomXpDropsPlugin extends Plugin
                 } break;
             case RANGED:
                 if(active == XpDropStyle.RANGE) {
-                    if(active == XpDropStyle.RANGE) {
-                        style = active;
-                    }
+                    style = active;
                 } break;
             case ATTACK:
             case STRENGTH:

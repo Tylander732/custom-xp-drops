@@ -20,6 +20,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.nio.Buffer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.awt.*;
@@ -36,7 +37,7 @@ public class XpDropOverlay extends Overlay {
     //TODO: What do the order of these indices and priority matter?
     protected static final int[] SKILL_INDICES = new int[] {10, 0, 2, 4, 6, 1, 3, 5, 16, 15, 17, 12, 20, 14, 13, 7, 11, 8, 9, 18, 19, 22, 21};
     protected static final int[] SKILL_PRIORITY = new int[] {1, 5, 2, 6, 3, 7, 4, 15, 17, 18, 0, 16, 11, 14, 13, 9, 8, 10, 19, 20, 12, 22, 21};
-
+    protected static BufferedImage FAKE_SKILL_ICON;
     protected static BufferedImage HITSPLAT_ICON;
     protected static final float CONSTANT_FRAME_TIME = 1000.0f / FRAMES_PER_SECOND;
 
@@ -68,10 +69,29 @@ public class XpDropOverlay extends Overlay {
         for(int i = 0; i < STAT_ICONS.length; i++) {
             STAT_ICONS[i] = plugin.getSkillIcon(Skill.values()[i]);
         }
-
+        FAKE_SKILL_ICON = plugin.getIcon(423, 11);
+        HITSPLAT_ICON = plugin.getIcon(RED_HIT_SPLAT_SPRITE_ID, 0);
     }
 
+    //TODO: Documentation
+    protected void handleFont(Graphics2D graphics) {
+        if(font != null) {
+            graphics.setFont(font);
+            if(useRunescapeFont) {
+                graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+            }
+        }
+    }
 
+    protected void lazyInit() {
+        if(firstRender) {
+            firstRender = false;
+            initIcons();
+        }
+        if(lastFrameTime <= 0) {
+            lastFrameTime = System.currentTimeMillis() - 20;
+        }
+    }
 
     @Override
     public Dimension render(Graphics2D graphics) {
