@@ -95,6 +95,91 @@ public class XpDropOverlay extends Overlay {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        return null;
+        lazyInit();
+        update();
+    }
+
+    private void update() {
+        updateFont();
+        udpateDrops();
+        pollDrops();
+    }
+
+    //Pull data from the config fields to set the font for drops
+    //Will use default runescape font if none other are specified by the name
+    private void updateFont() {
+        //only perform anything within this function if any settings related to the font have changed
+        if(!lastFont.equals(config.fontName()) || lastFontSize != config.fontSize() || lastFontStyle != config.fontStyle()) {
+            lastFont = config.fontName();
+            lastFontSize = config.fontSize();
+            lastFontStyle = config.fontStyle();
+
+            //use runescape font as default
+            if(config.fontName().equals("")) {
+                if (config.fontSize() < 16)
+                {
+                    font = FontManager.getRunescapeSmallFont();
+                }
+                else if (config.fontStyle() == XpDropsConfig.FontStyle.BOLD || config.fontStyle() == XpDropsConfig.FontStyle.BOLD_ITALICS)
+                {
+                    font = FontManager.getRunescapeBoldFont();
+                }
+                else
+                {
+                    font = FontManager.getRunescapeFont();
+                }
+
+                if (config.fontSize() > 16)
+                {
+                    font = font.deriveFont((float)config.fontSize());
+                }
+
+                if (config.fontStyle() == XpDropsConfig.FontStyle.BOLD)
+                {
+                    font = font.deriveFont(Font.BOLD);
+                }
+                if (config.fontStyle() == XpDropsConfig.FontStyle.ITALICS)
+                {
+                    font = font.deriveFont(Font.ITALIC);
+                }
+                if (config.fontStyle() == XpDropsConfig.FontStyle.BOLD_ITALICS)
+                {
+                    font = font.deriveFont(Font.ITALIC | Font.BOLD);
+                }
+
+                useRunescapeFont = true;
+                return;
+            }
+
+            int style = Font.PLAIN;
+            switch (config.fontStyle()) {
+                case BOLD:
+                    style = Font.BOLD;
+                    break;
+                case ITALICS:
+                    style = Font.ITALIC;
+                    break;
+                case BOLD_ITALICS:
+                    style = Font.BOLD | Font.ITALIC;
+                    break;
+            }
+
+            font = new Font(config.fontName(), style, config.fontSize());
+            useRunescapeFont = false;
+        }
+    }
+
+    private void updateDrops() {
+        //if the drop has been in frame longer than specified in the config, remove it
+        xpDropsInFlight.removeIf(xpDropInFlight -> xpDropInFlight.frame > config.framesPerDrop());
+
+        int yModifier = config.yDirection() == XpDropsConfig.VerticalDirection.UP ? -1 : 1;
+
+        float frameTime = System.currentTimeMillis() - lastFrameTime;
+        float frameTimeModifier = frameTime / CONSTANT_FRAME_TIME;
+
+        for(XpDropInFlight xpDropInFlight : xpDropsInFlight) {
+            xpDropInFlight.frame += frameTimeModifier;
+        }
     }
 }
