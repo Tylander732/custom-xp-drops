@@ -181,5 +181,17 @@ public class XpDropOverlay extends Overlay {
         for(XpDropInFlight xpDropInFlight : xpDropsInFlight) {
             xpDropInFlight.frame += frameTimeModifier;
         }
+
+        if(config.fadeOut()) {
+            int threshold = (int) (0.66f * config.framesPerDrop());
+            int delta = config.framesPerDrop() - threshold;
+            for(XpDropInFlight xpDropInFlight : xpDropsInFlight) {
+                if(xpDropInFlight.frame > threshold) {
+                    int point = (int) xpDropInFlight.frame - threshold;
+                    float fade = point / (float) delta;
+                    xpDropInFlight.alpha = Math.max(0, 0xff - fade * 0xff);
+                }
+            }
+        }
     }
 }
