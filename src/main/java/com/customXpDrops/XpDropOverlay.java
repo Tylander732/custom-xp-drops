@@ -130,8 +130,14 @@ public class XpDropOverlay extends Overlay {
     }
 
     protected Point getCanvasTextLocation(Graphics2D graphics, Actor actor){
+        //TODO: what is the value of 140 representing?
         int zOffset = Math.min(actor.getLogicalHeight(), 140);
         return actor.getCanvasTextLocation(graphics, "x", zOffset);
+    }
+
+    //TODO: Learn more about the graphics class
+    protected void drawAttachedXpDrops(Graphics2D graphics) {
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
     }
 
     private void update() {
@@ -208,7 +214,7 @@ public class XpDropOverlay extends Overlay {
         //if the drop has been in frame longer than specified in the config, remove it
         xpDropsInFlight.removeIf(xpDropInFlight -> xpDropInFlight.frame > config.framesPerDrop());
 
-        int yModifier = config.yDirection() == XpDropsConfig.VerticalDirection.UP ? -1 : 1;
+        //int yModifier = config.yDirection() == XpDropsConfig.VerticalDirection.UP ? -1 : 1;
 
         float frameTime = System.currentTimeMillis() - lastFrameTime;
         float frameTimeModifier = frameTime / CONSTANT_FRAME_TIME;
