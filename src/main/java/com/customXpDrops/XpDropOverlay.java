@@ -97,6 +97,41 @@ public class XpDropOverlay extends Overlay {
     public Dimension render(Graphics2D graphics) {
         lazyInit();
         update();
+
+        if(config.attachToPlayer()) {
+            setPosition(OverlayPosition.DYNAMIC);
+            setLayer(OverlayLayer.ABOVE_WIDGETS);
+
+            if(client.getLocalPlayer() == null) {
+                return null;
+            }
+
+            //TODO: write drawAttachedXpDrops(graphics);
+        }
+        else {
+            setLayer(OverlayLayer.ABOVE_WIDGETS);
+            setPosition(OverlayPosition.TOP_RIGHT);
+
+            //TODO: drawXpDrops(graphics);
+
+            FontMetrics fontMetrics = graphics.getFontMetrics();
+
+            int width = fontMetrics.stringWidth(pattern);
+
+            int height = fontMetrics.getHeight();
+            height += Math.abs(config.framesPerDrop() * config.yPixelsPerSecond() / FRAMES_PER_SECOND);
+
+            lastFrameTime = System.currentTimeMillis();
+            return new Dimension(width, height);
+        }
+
+        lastFrameTime = System.currentTimeMillis();
+        return null;
+    }
+
+    protected Point getCanvasTextLocation(Graphics2D graphics, Actor actor){
+        int zOffset = Math.min(actor.getLogicalHeight(), 140);
+        return actor.getCanvasTextLocation(graphics, "x", zOffset);
     }
 
     private void update() {
