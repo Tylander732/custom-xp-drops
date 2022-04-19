@@ -101,7 +101,7 @@ public class XpDropOverlay extends Overlay {
 
     private void update() {
         updateFont();
-        udpateDrops();
+        updateDrops();
         pollDrops();
     }
 
@@ -192,6 +192,76 @@ public class XpDropOverlay extends Overlay {
                     xpDropInFlight.alpha = Math.max(0, 0xff - fade * 0xff);
                 }
             }
+        }
+    }
+
+    //TODO: Write documentation
+    private void pollDrops() {
+        float lastFrame = 0;
+        if(xpDropsInFlight.size() > 0) {
+            XpDropInFlight xpDropInFlight = xpDropsInFlight.get(xpDropsInFlight.size() - 1);
+            lastFrame = xpDropInFlight.frame;
+            //TODO: lastframe -= config.groupedDelay();
+        }
+
+        ArrayList<XpDropInFlight> drops = new ArrayList<>();
+
+        XpDropStyle style = XpDropStyle.DEFAULT;
+
+        int totalHit = 0;
+        Actor target = null;
+
+        if(config.isGrouped()) {
+            int amount = 0;
+            int icons = 0;
+
+            XpDrop xpDrop = plugin.getQueue().poll();
+            while(xpDrop != null) {
+                amount += xpDrop.getExperience();
+                //TODO: What is happening in the assignment of this icon
+                icons |= 1 << SKILL_PRIORITY[xpDrop.getSkill().ordinal()];
+                if(xpDrop.getStyle() != XpDropStyle.DEFAULT) {
+                    style = xpDrop.getStyle();
+                }
+
+                if(xpDrop.fake) {
+                    //TODO: What is this assignment?
+                    icons |= 1 << 23;
+                }
+
+                xpDrop = plugin.getQueue().poll();
+            }
+
+            if(amount > 0) {
+                //TODO: Is this the correct assignment for hit?
+                int hit = totalHit;
+                XpDropInFlight xpDropInFlight = new XpDropInFlight(icons, amount, style, 0, 0, 0xff, 0, hit, target);
+                drops.add(xpDropInFlight);
+            }
+        }
+        else {
+            XpDrop xpDrop = plugin.getQueue().poll();
+            while(xpDrop != null) {
+                int icons = 1 << SKILL_PRIORITY[xpDrop.getSkill().ordinal()];
+                int amount = xpDrop.getExperience();
+                if(xpDrop.getStyle() != XpDropStyle.DEFAULT) {
+                    style = xpDrop.getStyle();
+                }
+
+                if(xpDrop.fake) {
+                    icons |= 1 << 23;
+                }
+
+                XpDropInFlight xpDropInFlight = new XpDropInFlight(icons, amount, style, 0, 0, 0xff, 0, 0, xpDrop.attachedActor);
+                drops.add(xpDropInFlight);
+
+                xpDrop = plugin.getQueue().poll();
+            }
+        }
+
+        for(XpDropInFlight drop : drops) {
+            drop.setStyle(style);
+            xpDropsInFlight.add(drop);
         }
     }
 }
