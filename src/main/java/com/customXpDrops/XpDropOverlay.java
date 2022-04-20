@@ -138,6 +138,26 @@ public class XpDropOverlay extends Overlay {
     //TODO: Learn more about the graphics class
     protected void drawAttachedXpDrops(Graphics2D graphics) {
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+        handleFont(graphics);
+
+        for(XpDropInFlight xpDropInFlight : xpDropsInFlight) {
+            if (xpDropInFlight.frame < 0) {
+                continue;
+            }
+            String text = getDropText(xpDropInFlight);
+            //TODO: Continue
+        }
+    }
+
+    protected String getDropText(XpDropInFlight xpDropInFlight) {
+        String text = xpFormatter.format(xpDropInFlight.amount);
+
+        //TODO: add two config items for prefix and suffix
+        //text = config.xpDropPrefix() + text;
+        //text = text + config.xpDropSuffix();
+
+        return text;
     }
 
     private void update() {
