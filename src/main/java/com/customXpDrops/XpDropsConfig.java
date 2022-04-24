@@ -180,5 +180,17 @@ public interface XpDropsConfig extends Config {
         return FontStyle.DEFAULT;
     }
 
+    @ConfigItem(
+            keyName = "xpDropPrefix",
+            name = "Xp Drop Prefix",
+            description = "Custom Prefix for Xp Drops",
+            position = 10,
+            section = font_settings
+
+    )
+    default String xpDropPrefix() {
+        return "";
+    }
+
 }
 
