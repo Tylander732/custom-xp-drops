@@ -267,7 +267,6 @@ public class XpDropOverlay extends Overlay {
     protected String getDropText(XpDropInFlight xpDropInFlight) {
         String text = xpFormatter.format(xpDropInFlight.amount);
 
-        //TODO: add two config items for prefix and suffix
         text = config.xpDropPrefix() + text;
 
         return text;

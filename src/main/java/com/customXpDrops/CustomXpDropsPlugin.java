@@ -19,6 +19,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -107,6 +108,11 @@ public class CustomXpDropsPlugin extends Plugin
     @Override
     protected void shutDown() {
         overlayManager.remove(xpDropOverlay);
+    }
+
+    @Subscribe
+    protected void onConfigChanged(ConfigChanged configChanged) {
+
     }
 
     //Set the opponent variables to either an NPC or the player the user is fighting against
