@@ -106,13 +106,13 @@ public class XpDropOverlay extends Overlay {
                 return null;
             }
 
-            //TODO: write drawAttachedXpDrops(graphics);
+            drawAttachedXpDrops(graphics);
         }
         else {
             setLayer(OverlayLayer.ABOVE_WIDGETS);
             setPosition(OverlayPosition.TOP_RIGHT);
 
-            //TODO: drawXpDrops(graphics);
+            drawXpDrops(graphics);
 
             FontMetrics fontMetrics = graphics.getFontMetrics();
 
@@ -169,8 +169,50 @@ public class XpDropOverlay extends Overlay {
             int imageX = x - 2;
             int imageY = y - graphics.getFontMetrics().getMaxAscent();
             drawIcons(graphics, xpDropInFlight.icons, imageX, imageY, xpDropInFlight.alpha);
-            //TODO: Continue
         }
+    }
+
+    protected void drawXpDrops(Graphics2D graphics) {
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+        handleFont(graphics);
+
+        int width = graphics.getFontMetrics().stringWidth(pattern);
+        int height = graphics.getFontMetrics().getHeight();
+        int totalHeight = height + (int) Math.abs(config.framesPerDrop() * config.yPixelsPerSecond() / FRAMES_PER_SECOND);
+
+        for(XpDropInFlight xpDropInFlight : xpDropsInFlight) {
+            if (xpDropInFlight.frame < 0) {
+                continue;
+            }
+            String text = getDropText(xpDropInFlight);
+
+            float xStart = xpDropInFlight.xOffset;
+            float yStart = xpDropInFlight.yOffset;
+
+            int textY;
+            if(config.yDirection() == XpDropsConfig.VerticalDirection.DOWN) {
+                textY = (int) (yStart + graphics.getFontMetrics().getMaxAscent());
+            } else {
+                textY = (int) (totalHeight + yStart + graphics.getFontMetrics().getMaxAscent() - graphics.getFontMetrics().getHeight());
+            }
+
+            int textX = (int) (width + xStart - graphics.getFontMetrics().stringWidth(text));
+            drawText(graphics, text, textX, textY, xpDropInFlight);
+            int imageX = textX - 2;
+            int imageY = textY - graphics.getFontMetrics().getMaxAscent();
+            drawIcons(graphics, xpDropInFlight.icons, imageX, imageY, xpDropInFlight.alpha);
+        }
+    }
+
+    protected void drawText(Graphics2D graphics, String text, int textX, int textY, XpDropInFlight xpDropInFlight) {
+        Color _color = getColor(xpDropInFlight);
+        Color backgroundColor = new Color(0,0,0, (int) xpDropInFlight.alpha);
+        Color color = new Color(_color.getRed(), _color.getGreen(), _color.getBlue(), (int) xpDropInFlight.alpha);
+        graphics.setColor(backgroundColor);
+        graphics.drawString(text, textX + 1, textY + 1);
+        graphics.setColor(color);
+        graphics.drawString(text, textX, textY);
     }
 
     protected int drawIcons(Graphics2D graphics, int icons, int x, int y, float alpha) {
