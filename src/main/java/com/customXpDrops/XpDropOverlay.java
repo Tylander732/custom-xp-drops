@@ -187,10 +187,17 @@ public class XpDropOverlay extends Overlay {
                     int iconWidth = image.getWidth() * _iconSize / 25;
                     int iconHeight = image.getHeight() * _iconSize / 25;
                     Dimension dimension = drawIcon(graphics, image, x, y, iconWidth, iconHeight, alpha / 0xff);
-
+                    width += dimension.getWidth() + 2;
                 }
             }
+            int hitsplatIcon = (icons >> 24) & 0x1;
+            if(hitsplatIcon == 0x1) {
+                BufferedImage image = HITSPLAT_ICON;
+                int _iconSize = Math.max(iconSize - 4, 14);
+                Dimension dimension = drawIcon(graphics, image, x, y, _iconSize, _iconSize, alpha / 0xff);
+            }
         }
+        return width;
     }
 
     private Dimension drawIcon(Graphics2D graphics, BufferedImage image, int x, int y, int width, int height, float alpha) {
