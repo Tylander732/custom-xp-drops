@@ -374,7 +374,7 @@ public class XpDropOverlay extends Overlay {
         if(xpDropsInFlight.size() > 0) {
             XpDropInFlight xpDropInFlight = xpDropsInFlight.get(xpDropsInFlight.size() - 1);
             lastFrame = xpDropInFlight.frame;
-            //TODO: lastframe -= config.groupedDelay();
+            lastFrame -= config.groupedDelay();
         }
 
         ArrayList<XpDropInFlight> drops = new ArrayList<>();
@@ -432,9 +432,13 @@ public class XpDropOverlay extends Overlay {
             }
         }
 
+        int index = 0;
         for(XpDropInFlight drop : drops) {
+            int frameOffset = -index * config.groupedDelay();
             drop.setStyle(style);
+            drop.setFrame(Math.min(frameOffset, lastFrame));
             xpDropsInFlight.add(drop);
+            index++;
         }
     }
 }

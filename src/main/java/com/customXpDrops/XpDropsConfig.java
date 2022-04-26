@@ -11,7 +11,7 @@ import java.awt.Color;
 /**
  * Interface extending config class, contains all config items that I may want to change for my xp drops
  */
-@ConfigGroup("TyrethXpDrops")
+@ConfigGroup("CustomXpDrops")
 public interface XpDropsConfig extends Config {
 
     enum FontStyle {
@@ -60,10 +60,21 @@ public interface XpDropsConfig extends Config {
     }
 
     @ConfigItem(
+            keyName = "groupedDelay",
+            name = "XP Drop Delay",
+            description = "Amount of frames delay between 2 drops when not grouped",
+            position = 1,
+            section = xp_drop_settings
+    )
+    default int groupedDelay() {
+        return 20;
+    }
+
+    @ConfigItem(
             keyName = "yPixelsPerSecond",
             name = "Vertical speed",
             description = "Amount of pixels the xp drop will move per second in the vertical direction",
-            position = 1,
+            position = 2,
             section = xp_drop_settings
     )
     default int yPixelsPerSecond() {
@@ -74,7 +85,7 @@ public interface XpDropsConfig extends Config {
             keyName = "yDirection",
             name = "Vertical Direction",
             description = "Direction the drop moves vertically, either UP or DOWN",
-            position = 1,
+            position = 3,
             section = xp_drop_settings
     )
     default VerticalDirection yDirection(){
@@ -85,7 +96,7 @@ public interface XpDropsConfig extends Config {
             keyName = "framesPerDrop",
             name = "Time until fadeout",
             description = "Time until the XP drop disappears",
-            position = 2,
+            position = 4,
             section = xp_drop_settings
     )
     default int framesPerDrop(){
@@ -96,7 +107,7 @@ public interface XpDropsConfig extends Config {
             keyName = "fadeOut",
             name = "Fade out",
             description = "Should the XP drop fade out",
-            position = 3,
+            position = 5,
             section = xp_drop_settings
     )
     default boolean fadeOut() {
@@ -107,7 +118,7 @@ public interface XpDropsConfig extends Config {
             keyName = "showIcons",
             name = "Show skill icons",
             description = "Show the skill icons next to the XP drop",
-            position = 4,
+            position = 6,
             section = xp_drop_settings
     )
     default boolean showIcons() {
@@ -118,7 +129,7 @@ public interface XpDropsConfig extends Config {
             keyName = "xpDropColor",
             name = "Xp Drop Color",
             description = "Color you want the XP drop to be",
-            position = 5,
+            position = 7,
             section = xp_drop_settings
     )
     default Color xpDropColor() {
@@ -129,7 +140,7 @@ public interface XpDropsConfig extends Config {
             keyName = "xpDropColorWhenPraying",
             name = "XP Drop Color when praying",
             description = "Color of the XP drop when using offensive prayers",
-            position = 6,
+            position = 8,
             section = xp_drop_settings
     )
     default Color xpDropColorWhenPraying() {
@@ -140,7 +151,7 @@ public interface XpDropsConfig extends Config {
             keyName = "attachToPlayer",
             name = "Attach to player",
             description = "Attaches the XP drop location to the player",
-            position = 7,
+            position = 9,
             section = xp_drop_settings
     )
     default boolean attachToPlayer() {
@@ -151,7 +162,7 @@ public interface XpDropsConfig extends Config {
             keyName = "fontName",
             name = "Font Name",
             description = "Name of the font for XP Drops.",
-            position = 8,
+            position = 10,
             section = font_settings
     )
     default String fontName() {
@@ -162,7 +173,7 @@ public interface XpDropsConfig extends Config {
             keyName = "fontSize",
             name = "Font Size",
             description = "Size for your font",
-            position = 9,
+            position = 11,
             section = font_settings
     )
     default int fontSize() {
@@ -173,7 +184,7 @@ public interface XpDropsConfig extends Config {
             keyName = "fontStyle",
             name = "Font Style",
             description = "Style of font for XP Drops",
-            position = 10,
+            position = 12,
             section = font_settings
     )
     default FontStyle fontStyle() {
@@ -184,7 +195,7 @@ public interface XpDropsConfig extends Config {
             keyName = "xpDropPrefix",
             name = "Xp Drop Prefix",
             description = "Custom Prefix for Xp Drops",
-            position = 10,
+            position = 13,
             section = font_settings
 
     )
