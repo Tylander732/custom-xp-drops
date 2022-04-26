@@ -159,12 +159,60 @@ public class XpDropOverlay extends Overlay {
             int y = (int) (yStart + point.getY());
 
             Color color = getColor(xpDropInFlight);
+            Color backgroundColor = new Color(0,0,0, (int)xpDropInFlight.alpha);
+            Color color1 = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)xpDropInFlight.alpha);
+            graphics.setColor(backgroundColor);
+            graphics.drawString(text, x + 1, y + 1);
+            graphics.setColor(color1);
+            graphics.drawString(text, x, y);
+
+            int imageX = x - 2;
+            int imageY = y - graphics.getFontMetrics().getMaxAscent();
+            drawIcons(graphics, xpDropInFlight.icons, imageX, imageY, xpDropInFlight.alpha);
             //TODO: Continue
         }
     }
 
+    protected int drawIcons(Graphics2D graphics, int icons, int x, int y, float alpha) {
+        int width = 0;
+        int iconSize = graphics.getFontMetrics().getHeight();
+        if(config.showIcons()) {
+            for(int i = SKILL_INDICES.length - 1; i >= 0; i--) {
+                //TODO: learn about this assignment
+                int icon = (icons >> i) & 0x1;
+                if(icon == 0x1) {
+                    int index = SKILL_INDICES[i];
+                    BufferedImage image = STAT_ICONS[index];
+                    int _iconSize = Math.max(iconSize, 18);
+                    int iconWidth = image.getWidth() * _iconSize / 25;
+                    int iconHeight = image.getHeight() * _iconSize / 25;
+                    Dimension dimension = drawIcon(graphics, image, x, y, iconWidth, iconHeight, alpha / 0xff);
+
+                }
+            }
+        }
+    }
+
+    private Dimension drawIcon(Graphics2D graphics, BufferedImage image, int x, int y, int width, int height, float alpha) {
+        int yOffset = graphics.getFontMetrics().getHeight() / 2 - height / 2;
+
+        Composite composite = graphics.getComposite();
+        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        graphics.drawImage(image, x, y + yOffset, width, height, null);
+        graphics.setComposite(composite);
+        return new Dimension(width, height);
+    }
+
     protected Color getColor(XpDropInFlight xpDropInFlight) {
-        
+        switch (xpDropInFlight.style) {
+            case DEFAULT:
+                return config.xpDropColor();
+            case MELEE:
+            case RANGE:
+            case MAGE:
+                return config.xpDropColorWhenPraying();
+        }
+        return Color.WHITE;
     }
 
     protected String getDropText(XpDropInFlight xpDropInFlight) {
