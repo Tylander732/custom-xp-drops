@@ -146,8 +146,25 @@ public class XpDropOverlay extends Overlay {
                 continue;
             }
             String text = getDropText(xpDropInFlight);
+
+            //Attach xp drops to the player
+            Actor target = client.getLocalPlayer();
+
+            Point point = getCanvasTextLocation(graphics, target);
+            float xStart = xpDropInFlight.xOffset;
+            float yStart = xpDropInFlight.yOffset;
+
+            //String width of xp Drop helps determine x location
+            int x = (int) (xStart + point.getX() - (graphics.getFontMetrics().stringWidth(text) / 2.0f));
+            int y = (int) (yStart + point.getY());
+
+            Color color = getColor(xpDropInFlight);
             //TODO: Continue
         }
+    }
+
+    protected Color getColor(XpDropInFlight xpDropInFlight) {
+        
     }
 
     protected String getDropText(XpDropInFlight xpDropInFlight) {
