@@ -64,7 +64,9 @@ public class XpDropOverlay extends Overlay {
         setPosition(OverlayPosition.TOP_RIGHT);
     }
 
-    //Loop through all the skills in the game to get their icons to be used
+    /**
+     * Loop through all the skills in the game to get their icons to be used
+     */
     protected void initIcons() {
         for(int i = 0; i < STAT_ICONS.length; i++) {
             STAT_ICONS[i] = plugin.getSkillIcon(Skill.values()[i]);
@@ -73,7 +75,10 @@ public class XpDropOverlay extends Overlay {
         HITSPLAT_ICON = plugin.getIcon(RED_HIT_SPLAT_SPRITE_ID, 0);
     }
 
-    //TODO: Documentation
+    /**
+     * A font is provided within the config menu
+     * @param graphics
+     */
     protected void handleFont(Graphics2D graphics) {
         if(font != null) {
             graphics.setFont(font);
@@ -93,6 +98,14 @@ public class XpDropOverlay extends Overlay {
         }
     }
 
+    /**
+     * Main function for rendering the xp drop overlay
+     * Does initialization of overlay if it's the first time it's being rendered
+     * Calls update function to handle updating of font, gaterhing xp drop
+     * Handles overlay positioning, calls drawing of xp drops
+     * @param graphics
+     * @return
+     */
     @Override
     public Dimension render(Graphics2D graphics) {
         lazyInit();
@@ -117,7 +130,7 @@ public class XpDropOverlay extends Overlay {
             FontMetrics fontMetrics = graphics.getFontMetrics();
 
             int width = fontMetrics.stringWidth(pattern);
-
+            width += Math.abs(config.framesPerDrop() / FRAMES_PER_SECOND);
             int height = fontMetrics.getHeight();
             height += Math.abs(config.framesPerDrop() * config.yPixelsPerSecond() / FRAMES_PER_SECOND);
 
@@ -135,7 +148,10 @@ public class XpDropOverlay extends Overlay {
         return actor.getCanvasTextLocation(graphics, "x", zOffset);
     }
 
-    //TODO: Learn more about the graphics class
+    /**
+     *
+     * @param graphics
+     */
     protected void drawAttachedXpDrops(Graphics2D graphics) {
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
@@ -151,6 +167,11 @@ public class XpDropOverlay extends Overlay {
             Actor target = client.getLocalPlayer();
 
             Point point = getCanvasTextLocation(graphics, target);
+            if(point == null) {
+                continue;
+            }
+            point = new Point(point.getX(), point.getY());
+
             float xStart = xpDropInFlight.xOffset;
             float yStart = xpDropInFlight.yOffset;
 
@@ -178,6 +199,7 @@ public class XpDropOverlay extends Overlay {
         handleFont(graphics);
 
         int width = graphics.getFontMetrics().stringWidth(pattern);
+        int totalWidth = width + (int) Math.abs(config.framesPerDrop() / FRAMES_PER_SECOND);
         int height = graphics.getFontMetrics().getHeight();
         int totalHeight = height + (int) Math.abs(config.framesPerDrop() * config.yPixelsPerSecond() / FRAMES_PER_SECOND);
 
@@ -197,11 +219,13 @@ public class XpDropOverlay extends Overlay {
                 textY = (int) (totalHeight + yStart + graphics.getFontMetrics().getMaxAscent() - graphics.getFontMetrics().getHeight());
             }
 
-            int textX = (int) (width + xStart - graphics.getFontMetrics().stringWidth(text));
+            int textX = (int) (totalWidth + xStart - graphics.getFontMetrics().stringWidth(text));
             drawText(graphics, text, textX, textY, xpDropInFlight);
+
             int imageX = textX - 2;
             int imageY = textY - graphics.getFontMetrics().getMaxAscent();
             drawIcons(graphics, xpDropInFlight.icons, imageX, imageY, xpDropInFlight.alpha);
+
         }
     }
 
@@ -229,6 +253,7 @@ public class XpDropOverlay extends Overlay {
                     int iconWidth = image.getWidth() * _iconSize / 25;
                     int iconHeight = image.getHeight() * _iconSize / 25;
                     Dimension dimension = drawIcon(graphics, image, x, y, iconWidth, iconHeight, alpha / 0xff);
+                    x -= dimension.getWidth() + 2;
                     width += dimension.getWidth() + 2;
                 }
             }
@@ -237,6 +262,7 @@ public class XpDropOverlay extends Overlay {
                 BufferedImage image = HITSPLAT_ICON;
                 int _iconSize = Math.max(iconSize - 4, 14);
                 Dimension dimension = drawIcon(graphics, image, x, y, _iconSize, _iconSize, alpha / 0xff);
+                width += dimension.getWidth() + 2;
             }
         }
         return width;
@@ -244,10 +270,11 @@ public class XpDropOverlay extends Overlay {
 
     private Dimension drawIcon(Graphics2D graphics, BufferedImage image, int x, int y, int width, int height, float alpha) {
         int yOffset = graphics.getFontMetrics().getHeight() / 2 - height / 2;
+        int xOffset = width;
 
         Composite composite = graphics.getComposite();
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        graphics.drawImage(image, x, y + yOffset, width, height, null);
+        graphics.drawImage(image, x - xOffset, y + yOffset, width, height, null);
         graphics.setComposite(composite);
         return new Dimension(width, height);
     }

@@ -36,7 +36,6 @@ public class XpDropDamageCalculator {
      * @param id
      * @param hpXpDiff
      * @param isPlayer
-     * @param configModifier
      * @return an int representing the amount the player hit against an NPC
      */
     public int calculateHitOnNpc(int id, int hpXpDiff, boolean isPlayer) {
