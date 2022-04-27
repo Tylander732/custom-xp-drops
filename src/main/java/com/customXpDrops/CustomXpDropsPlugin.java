@@ -66,13 +66,6 @@ public class CustomXpDropsPlugin extends Plugin
         return (XpDropsConfig)configManager.getConfig(XpDropsConfig.class);
     }
 
-    //If multiple XP Drops happen at once, create a priority based on array for order in which they appear
-    int skillPriorityComparator(XpDrop x1, XpDrop x2) {
-        int priority1 = XpDropOverlay.SKILL_PRIORITY[x1.getSkill().ordinal()];
-        int priority2 = XpDropOverlay.SKILL_PRIORITY[x2.getSkill().ordinal()];
-        return Integer.compare(priority1, priority2);
-    }
-
     @Getter
     private final PriorityQueue<XpDrop> queue = new PriorityQueue<>(this::skillPriorityComparator);
     @Getter
@@ -83,6 +76,13 @@ public class CustomXpDropsPlugin extends Plugin
     private int lastOpponentId = -1;
     private boolean lastOpponentIsPlayer = false;
     private Actor lastOpponent;
+
+    //If multiple XP Drops happen at once, create a priority based on array for order in which they appear
+    int skillPriorityComparator(XpDrop x1, XpDrop x2) {
+        int priority1 = XpDropOverlay.SKILL_PRIORITY[x1.getSkill().ordinal()];
+        int priority2 = XpDropOverlay.SKILL_PRIORITY[x2.getSkill().ordinal()];
+        return Integer.compare(priority1, priority2);
+    }
 
     @Override
     protected void startUp() {
@@ -98,10 +98,11 @@ public class CustomXpDropsPlugin extends Plugin
         else {
             Arrays.fill(previous_exp, 0);
         }
-        //TODO: Does this queue.clear() matter?
+
         queue.clear();
         overlayManager.add(xpDropOverlay);
 
+        //creates a map of all NPC's (by id) that give bonus xp
         xpDropDamageCalculator.populateMap();
     }
 
@@ -110,12 +111,10 @@ public class CustomXpDropsPlugin extends Plugin
         overlayManager.remove(xpDropOverlay);
     }
 
-    @Subscribe
-    protected void onConfigChanged(ConfigChanged configChanged) {
-
-    }
-
-    //Set the opponent variables to either an NPC or the player the user is fighting against
+    /**
+     * Set the opponent variables to either an NPC or the player the user is fighting against
+     * @param event
+     */
     @Subscribe
     public void onInteractingChanged(InteractingChanged event) {
         if(event.getSource() != client.getLocalPlayer()){
@@ -141,7 +140,11 @@ public class CustomXpDropsPlugin extends Plugin
         }
     }
 
-    //TODO: Write documentation for this function
+    /**
+     * This function hides the default OSRS XpDrops when the custom Xp drops are turned on
+     * If the script being ran has the ID of the Default XP Drops, hide them
+     * @param scriptPreFired
+     */
     @Subscribe
     public void onScriptPreFired(ScriptPreFired scriptPreFired) {
         if(scriptPreFired.getScriptId() == XPDROPS_SETDROPSIZE) {
@@ -156,8 +159,11 @@ public class CustomXpDropsPlugin extends Plugin
         }
     }
 
-    //When logging in or when hopping worlds, reset the previous_exp array to 0,
-    //so it can be refilled once the user has logged in
+    /**
+     * When logging in or when hopping worlds, reset the previous_exp array to 0,
+     * so it can be refilled once the user has logged in
+     * @param gameStateChanged
+     */
     @Subscribe
     protected void onGameStateChanged(GameStateChanged gameStateChanged) {
         if(gameStateChanged.getGameState() == GameState.LOGIN_SCREEN || gameStateChanged.getGameState() == GameState.HOPPING) {
@@ -165,6 +171,11 @@ public class CustomXpDropsPlugin extends Plugin
         }
     }
 
+    /**
+     * Generate a FakeXp drop even if not XP Was gained.
+     * if a skill has 200m xp in it, do not create an xp drop
+     * @param event
+     */
     @Subscribe
     protected void onFakeXpDrop(FakeXpDrop event) {
         int currentXp = event.getXp();
@@ -173,18 +184,36 @@ public class CustomXpDropsPlugin extends Plugin
         if(event.getXp() >= 200000000) {
             return;
         }
+
+        if(event.getSkill() == Skill.HITPOINTS) {
+            int hit = xpDropDamageCalculator.calculateHitOnNpc(lastOpponentId, currentXp, lastOpponentIsPlayer);
+            hitBuffer.add(new Hit(hit, lastOpponent));
+        }
+
         XpDrop xpDrop = new XpDrop(event.getSkill(), currentXp, matchPrayerStyle(event.getSkill()), true, lastOpponent);
         queue.add(xpDrop);
     }
 
+    /**
+     * Function triggers when Experience, level, or boosted level of a skill changes
+     * Queue up a xp drop if the currentXp is greater than the previous xp
+     * set previousXp for the skill that gained xp to the new value
+     * @param event
+     */
     @Subscribe
     protected void onStatChanged(StatChanged event) {
         int currentXp = event.getXp();
         int previousXp = previous_exp[event.getSkill().ordinal()];
-        //TODO: Do I need the HITPOINTS related stuff?
+        if(previousXp > 0 && currentXp - previousXp > 0) {
+            if(event.getSkill() == Skill.HITPOINTS) {
+                int hit = xpDropDamageCalculator.calculateHitOnNpc(lastOpponentId, currentXp - previousXp, lastOpponentIsPlayer);
+                hitBuffer.add(new Hit(hit, lastOpponent));
+            }
 
-        XpDrop xpDrop = new XpDrop(event.getSkill(), currentXp - previousXp, matchPrayerStyle(event.getSkill()), false, lastOpponent);
-        queue.add(xpDrop);
+            XpDrop xpDrop = new XpDrop(event.getSkill(), currentXp - previousXp, matchPrayerStyle(event.getSkill()), false, lastOpponent);
+            queue.add(xpDrop);
+        }
+        previous_exp[event.getSkill().ordinal()] = event.getXp();
     }
 
     protected BufferedImage getSkillIcon(Skill skill) {

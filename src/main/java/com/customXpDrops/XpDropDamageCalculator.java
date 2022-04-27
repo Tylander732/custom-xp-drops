@@ -31,7 +31,34 @@ public class XpDropDamageCalculator {
         XP_BONUS_MAPPING.putAll(getNpcsWithXpBonus());
     }
 
-    //Read through the JSON file and gather any Npcs that have bonus xp
+    /**
+     * Calculate the hit (damage) done to an NPC
+     * @param id
+     * @param hpXpDiff
+     * @param isPlayer
+     * @param configModifier
+     * @return an int representing the amount the player hit against an NPC
+     */
+    public int calculateHitOnNpc(int id, int hpXpDiff, boolean isPlayer) {
+        double modifier = 1.0;
+        if (isPlayer) {
+            modifier = Math.min(1.125d, 1 + Math.floor(id / 20.0d) / 40.0d);
+        }
+        else if (XP_BONUS_MAPPING.containsKey(id)) {
+            modifier = XP_BONUS_MAPPING.get(id);
+        }
+
+        if (modifier < 1e-6) {
+            return 0;
+        }
+        return (int) Math.round((hpXpDiff * (3.0d / 4.0d)) / modifier);
+    }
+
+    /**
+     * Read through the json file containing xp multiplier info for any NPC's that have bonus xp
+     * and return a map containing Id's of NPCs, and the amount of bonus xp
+     * @return
+     */
     private HashMap<Integer, Double> getNpcsWithXpBonus() {
         HashMap<Integer, Double> map = new HashMap<>();
         try {
