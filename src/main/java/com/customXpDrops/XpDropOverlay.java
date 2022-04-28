@@ -149,7 +149,8 @@ public class XpDropOverlay extends Overlay {
     }
 
     /**
-     *
+     * This function is called when the config item AttachToPlayer is selected.
+     * It dynamically draws the xp drops where relative to the player on screen
      * @param graphics
      */
     protected void drawAttachedXpDrops(Graphics2D graphics) {
@@ -193,6 +194,10 @@ public class XpDropOverlay extends Overlay {
         }
     }
 
+    /**
+     * Draw xp drops within the standard overlay area that is rendered
+     * @param graphics
+     */
     protected void drawXpDrops(Graphics2D graphics) {
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
@@ -229,6 +234,14 @@ public class XpDropOverlay extends Overlay {
         }
     }
 
+    /**
+     * Render the text of the xp drop on screen
+     * @param graphics
+     * @param text
+     * @param textX
+     * @param textY
+     * @param xpDropInFlight
+     */
     protected void drawText(Graphics2D graphics, String text, int textX, int textY, XpDropInFlight xpDropInFlight) {
         Color _color = getColor(xpDropInFlight);
         Color backgroundColor = new Color(0,0,0, (int) xpDropInFlight.alpha);
@@ -305,8 +318,10 @@ public class XpDropOverlay extends Overlay {
         pollDrops();
     }
 
-    //Pull data from the config fields to set the font for drops
-    //Will use default runescape font if none other are specified by the name
+    /**
+     * Pull data from the config fields to set the font for drops
+     * Will use default runescape font if none other are specified by the name
+     */
     private void updateFont() {
         //only perform anything within this function if any settings related to the font have changed
         if(!lastFont.equals(config.fontName()) || lastFontSize != config.fontSize() || lastFontStyle != config.fontStyle()) {
@@ -373,12 +388,15 @@ public class XpDropOverlay extends Overlay {
         //if the drop has been in frame longer than specified in the config, remove it
         xpDropsInFlight.removeIf(xpDropInFlight -> xpDropInFlight.frame > config.framesPerDrop());
 
-        //int yModifier = config.yDirection() == XpDropsConfig.VerticalDirection.UP ? -1 : 1;
+        int yModifier = config.yDirection() == XpDropsConfig.VerticalDirection.UP ? -1 : 1;
 
         float frameTime = System.currentTimeMillis() - lastFrameTime;
         float frameTimeModifier = frameTime / CONSTANT_FRAME_TIME;
 
         for(XpDropInFlight xpDropInFlight : xpDropsInFlight) {
+            if(xpDropInFlight.frame >= 0) {
+                xpDropInFlight.yOffset += config.yPixelsPerSecond() / FRAMES_PER_SECOND * yModifier * frameTimeModifier;
+            }
             xpDropInFlight.frame += frameTimeModifier;
         }
 
