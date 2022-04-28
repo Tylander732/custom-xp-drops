@@ -48,6 +48,13 @@ public interface XpDropsConfig extends Config {
     )
     String font_settings = "font_settings";
 
+    @ConfigSection(
+            name = "Overall Xp Display settings",
+            description = "Settings related to the display of Overall XP",
+            position = 3
+    )
+    String overall_xp_settings = "overall_xp_settings";
+
     @ConfigItem(
             keyName = "grouped",
             name = "Group XP Drops",

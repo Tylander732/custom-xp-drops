@@ -384,6 +384,9 @@ public class XpDropOverlay extends Overlay {
         }
     }
 
+    /**
+     * Updates drops as they appear on screen. Modifies their position and as they fade out
+     */
     private void updateDrops() {
         //if the drop has been in frame longer than specified in the config, remove it
         xpDropsInFlight.removeIf(xpDropInFlight -> xpDropInFlight.frame > config.framesPerDrop());
