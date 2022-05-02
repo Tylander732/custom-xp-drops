@@ -210,5 +210,17 @@ public interface XpDropsConfig extends Config {
         return "";
     }
 
+    @ConfigItem(
+            keyName = "overallXpFontSize",
+            name = "Overall XP Font Size",
+            description = "Size of font for the Overall XP overlay",
+            position = 14,
+            section = overall_xp_settings
+
+    )
+    default int overallXpFontSize() {
+        return 16;
+    }
+
 }
 

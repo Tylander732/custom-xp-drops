@@ -53,6 +53,9 @@ public class CustomXpDropsPlugin extends Plugin
     private XpDropOverlay xpDropOverlay;
 
     @Inject
+    private OverallXpOverlay overallXpOverlay;
+
+    @Inject
     private XpDropsConfig config;
 
     @Inject
@@ -100,6 +103,7 @@ public class CustomXpDropsPlugin extends Plugin
         }
 
         queue.clear();
+        overlayManager.add(overallXpOverlay);
         overlayManager.add(xpDropOverlay);
 
         //creates a map of all NPC's (by id) that give bonus xp
@@ -108,6 +112,7 @@ public class CustomXpDropsPlugin extends Plugin
 
     @Override
     protected void shutDown() {
+        overlayManager.remove(overallXpOverlay);
         overlayManager.remove(xpDropOverlay);
     }
 
@@ -156,6 +161,8 @@ public class CustomXpDropsPlugin extends Plugin
             if(xpDrop != null) {
                 xpDrop.setHidden(true);
             }
+
+            //TODO: Hide the Default overallXp widget
         }
     }
 

@@ -1,6 +1,7 @@
 package com.customXpDrops;
 
 import net.runelite.api.Client;
+import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -52,10 +53,10 @@ public class OverallXpOverlay extends Overlay {
     }
 
     protected void lazyInit() {
-        
+        if(lastFrameTime <= 0) {
+            lastFrameTime = System.currentTimeMillis() - 20;
+        }
     }
-
-    //TODO: Remove default osrs XP display widget function
 
     //TODO: Get overall XP to display within rendered area
 
@@ -65,6 +66,117 @@ public class OverallXpOverlay extends Overlay {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        return null;
+        lazyInit();
+        update();
+
+        setLayer(OverlayLayer.ABOVE_WIDGETS);
+        setPosition(OverlayPosition.TOP_RIGHT);
+
+        drawOverallXp(graphics);
+
+        FontMetrics fontMetrics = graphics.getFontMetrics();
+
+        int width = fontMetrics.stringWidth(pattern);
+        int height = fontMetrics.getHeight();
+
+        lastFrameTime = System.currentTimeMillis();
+        return new Dimension(width, height);
+    }
+
+    protected void drawOverallXp(Graphics2D graphics) {
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+        handleFont(graphics);
+
+        int width = graphics.getFontMetrics().stringWidth(pattern);
+        int height = graphics.getFontMetrics().getHeight();
+
+        //TODO: Figure out how to get overall xp later
+        String text = "OVERALL";
+
+        int textY = height + graphics.getFontMetrics().getMaxAscent() - graphics.getFontMetrics().getHeight();
+        int textX = width - graphics.getFontMetrics().stringWidth(text);
+
+        drawText(graphics, text, textX, textY);
+    }
+
+    protected void drawText(Graphics2D graphics, String text, int textX, int textY) {
+        Color _color = Color.white;
+        Color backgroundColor = new Color(0,0,0);
+        graphics.setColor(backgroundColor);
+        graphics.drawString(text, textX + 1, textY + 1);
+        graphics.setColor(_color);
+        graphics.drawString(text, textX, textY);
+    }
+
+    private void update() {
+        updateFont();
+        updateOverallCounter();
+    }
+
+    private void updateFont() {
+        //only perform anything within this function if any settings related to the font have changed
+        if(!lastFont.equals(config.fontName()) || lastFontSize != config.overallXpFontSize() || lastFontStyle != config.fontStyle()) {
+            lastFont = config.fontName();
+            lastFontSize = config.overallXpFontSize();
+            lastFontStyle = config.fontStyle();
+
+            //use runescape font as default
+            if(config.fontName().equals("")) {
+                if (config.overallXpFontSize() < 16)
+                {
+                    font = FontManager.getRunescapeSmallFont();
+                }
+                else if (config.fontStyle() == XpDropsConfig.FontStyle.BOLD || config.fontStyle() == XpDropsConfig.FontStyle.BOLD_ITALICS)
+                {
+                    font = FontManager.getRunescapeBoldFont();
+                }
+                else
+                {
+                    font = FontManager.getRunescapeFont();
+                }
+
+                if (config.overallXpFontSize() > 16)
+                {
+                    font = font.deriveFont((float)config.overallXpFontSize());
+                }
+
+                if (config.fontStyle() == XpDropsConfig.FontStyle.BOLD)
+                {
+                    font = font.deriveFont(Font.BOLD);
+                }
+                if (config.fontStyle() == XpDropsConfig.FontStyle.ITALICS)
+                {
+                    font = font.deriveFont(Font.ITALIC);
+                }
+                if (config.fontStyle() == XpDropsConfig.FontStyle.BOLD_ITALICS)
+                {
+                    font = font.deriveFont(Font.ITALIC | Font.BOLD);
+                }
+
+                useRunescapeFont = true;
+                return;
+            }
+
+            int style = Font.PLAIN;
+            switch (config.fontStyle()) {
+                case BOLD:
+                    style = Font.BOLD;
+                    break;
+                case ITALICS:
+                    style = Font.ITALIC;
+                    break;
+                case BOLD_ITALICS:
+                    style = Font.BOLD | Font.ITALIC;
+                    break;
+            }
+
+            font = new Font(config.fontName(), style, config.overallXpFontSize());
+            useRunescapeFont = false;
+        }
+    }
+
+    private void updateOverallCounter() {
+
     }
 }
