@@ -3,13 +3,7 @@ package com.customXpDrops;
 import com.google.inject.Provides;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Actor;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.NPC;
-import net.runelite.api.Player;
-import net.runelite.api.Skill;
-import net.runelite.api.SpritePixels;
+import net.runelite.api.*;
 import net.runelite.api.events.FakeXpDrop;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.InteractingChanged;
@@ -102,6 +96,8 @@ public class CustomXpDropsPlugin extends Plugin
             Arrays.fill(previous_exp, 0);
         }
 
+        hideDefaultElements(true);
+
         queue.clear();
         overlayManager.add(overallXpOverlay);
         overlayManager.add(xpDropOverlay);
@@ -114,6 +110,8 @@ public class CustomXpDropsPlugin extends Plugin
     protected void shutDown() {
         overlayManager.remove(overallXpOverlay);
         overlayManager.remove(xpDropOverlay);
+
+        hideDefaultElements(false);
     }
 
     /**
@@ -142,27 +140,6 @@ public class CustomXpDropsPlugin extends Plugin
             lastOpponentIsPlayer = true;
         } else {
             lastOpponentId = -1;
-        }
-    }
-
-    /**
-     * This function hides the default OSRS XpDrops when the custom Xp drops are turned on
-     * If the script being ran has the ID of the Default XP Drops, hide them
-     * @param scriptPreFired
-     */
-    @Subscribe
-    public void onScriptPreFired(ScriptPreFired scriptPreFired) {
-        if(scriptPreFired.getScriptId() == XPDROPS_SETDROPSIZE) {
-            final int[] intStack = client.getIntStack();
-            final int intStackSize = client.getIntStackSize();
-            final int widgetId = intStack[intStackSize - 4];
-
-            final Widget xpDrop = client.getWidget(widgetId);
-            if(xpDrop != null) {
-                xpDrop.setHidden(true);
-            }
-
-            //TODO: Hide the Default overallXp widget
         }
     }
 
@@ -269,5 +246,39 @@ public class CustomXpDropsPlugin extends Plugin
                 } break;
         }
         return style;
+    }
+
+    /**
+     * used for hiding all the default osrs xp drop widgets
+     * use true parameter to hide elements, set to false to unhide them
+     * @param hidden
+     */
+    private void hideDefaultElements(boolean hidden) {
+        final Widget xpDrop = client.getWidget(122, 0);
+        final Widget xpTracker = client.getWidget(122, 4);
+        final Widget xpTrackerBar = client.getWidget(122, 16);
+
+        if(hidden) {
+            if(xpDrop != null) {
+                xpDrop.setHidden(true);
+            }
+            if(xpTracker != null) {
+                xpTracker.setHidden(true);
+            }
+            if(xpTrackerBar != null) {
+                xpTrackerBar.setHidden(true);
+            }
+        }
+        if(!hidden) {
+            if(xpDrop != null) {
+                xpDrop.setHidden(false);
+            }
+            if(xpTracker != null) {
+                xpTracker.setHidden(false);
+            }
+            if(xpTrackerBar != null) {
+                xpTrackerBar.setHidden(false);
+            }
+        }
     }
 }

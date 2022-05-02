@@ -1,6 +1,7 @@
 package com.customXpDrops;
 
 import net.runelite.api.Client;
+import net.runelite.api.Skill;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -13,7 +14,7 @@ import java.text.DecimalFormat;
 public class OverallXpOverlay extends Overlay {
 
     protected static final float FRAMES_PER_SECOND = 50;
-    protected static final String pattern = "###,###,###";
+    protected static final String pattern = "#,###,###,###";
     protected static final DecimalFormat xpFormatter = new DecimalFormat(pattern);
     protected static final float CONSTANT_FRAME_TIME = 1000.0f / FRAMES_PER_SECOND;
 
@@ -30,6 +31,8 @@ public class OverallXpOverlay extends Overlay {
 
     @Inject
     private Client client;
+
+    private Long overallXp;
 
     @Inject
     protected OverallXpOverlay(CustomXpDropsPlugin plugin, XpDropsConfig config) {
@@ -62,8 +65,6 @@ public class OverallXpOverlay extends Overlay {
 
     //TODO: Add config modifications for Overall XP - Size, fade out delay
 
-    //TODO: Update() function for continuously grabbing new Overall XP Value
-
     @Override
     public Dimension render(Graphics2D graphics) {
         lazyInit();
@@ -92,7 +93,8 @@ public class OverallXpOverlay extends Overlay {
         int height = graphics.getFontMetrics().getHeight();
 
         //TODO: Figure out how to get overall xp later
-        String text = "OVERALL";
+        //String text = Long.toString(overallXp);
+        String text = xpFormatter.format(overallXp);
 
         int textY = height + graphics.getFontMetrics().getMaxAscent() - graphics.getFontMetrics().getHeight();
         int textX = width - graphics.getFontMetrics().stringWidth(text);
@@ -177,6 +179,6 @@ public class OverallXpOverlay extends Overlay {
     }
 
     private void updateOverallCounter() {
-
+        overallXp = client.getOverallExperience();
     }
 }
