@@ -61,10 +61,6 @@ public class OverallXpOverlay extends Overlay {
         }
     }
 
-    //TODO: Get overall XP to display within rendered area
-
-    //TODO: Add config modifications for Overall XP - Size, fade out delay
-
     @Override
     public Dimension render(Graphics2D graphics) {
         lazyInit();
@@ -92,8 +88,6 @@ public class OverallXpOverlay extends Overlay {
         int width = graphics.getFontMetrics().stringWidth(pattern);
         int height = graphics.getFontMetrics().getHeight();
 
-        //TODO: Figure out how to get overall xp later
-        //String text = Long.toString(overallXp);
         String text = xpFormatter.format(overallXp);
 
         int textY = height + graphics.getFontMetrics().getMaxAscent() - graphics.getFontMetrics().getHeight();
@@ -103,7 +97,7 @@ public class OverallXpOverlay extends Overlay {
     }
 
     protected void drawText(Graphics2D graphics, String text, int textX, int textY) {
-        Color _color = Color.white;
+        Color _color = config.overallXpColor();
         Color backgroundColor = new Color(0,0,0);
         graphics.setColor(backgroundColor);
         graphics.drawString(text, textX + 1, textY + 1);

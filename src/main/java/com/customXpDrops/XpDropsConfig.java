@@ -232,28 +232,5 @@ public interface XpDropsConfig extends Config {
     default Color overallXpColor() {
         return Color.white;
     }
-
-    @ConfigItem(
-            keyName = "overallXpFadeOut",
-            name = "Overall XP Fade Out",
-            description = "Turn fade out for Overall XP on or off",
-            position = 16,
-            section = overall_xp_settings
-    )
-    default boolean overallXpFadeOut() {
-        return false;
-    }
-
-    @ConfigItem(
-            keyName = "overallXpFadeOutTime",
-            name = "Overall XP Fade Out Time",
-            description = "Time it takes for the overall xp tracker to fade out",
-            position = 17,
-            section = overall_xp_settings
-    )
-    default int overallXpFadeOutTime() {
-        return 100;
-    }
-
 }
 
